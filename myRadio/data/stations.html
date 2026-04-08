@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ESP32 - Радіостанції</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<style>
+*{box-sizing:border-box}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;margin:0;padding:20px;padding-top:70px;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);min-height:100vh;color:#e0e0e0}
+.navbar{position:fixed;top:0;left:0;right:0;background:linear-gradient(135deg,#1e1e2f 0%,#2d2d44 100%);padding:12px 20px;display:flex;justify-content:center;align-items:center;gap:10px;border-bottom:1px solid #3d3d5c;box-shadow:0 2px 10px rgba(0,0,0,0.3);z-index:1000}
+.navbar a{color:#a0a0a0;text-decoration:none;padding:8px 16px;border-radius:8px;transition:all 0.3s ease;font-size:14px;font-weight:500;display:flex;align-items:center;gap:6px}
+.navbar a:hover{background:rgba(96,165,250,0.1);color:#60a5fa}
+.navbar a.active{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;box-shadow:0 2px 8px rgba(102,126,234,0.4)}
+.navbar svg{width:18px;height:18px}
+.container{max-width:700px;margin:0 auto;background-color:#2d2d44;padding:30px;border-radius:15px;box-shadow:0 10px 40px rgba(0,0,0,0.5)}
+h1{color:#fff;text-align:center;margin-bottom:10px;font-size:24px}
+.subtitle{text-align:center;color:#a0a0a0;margin-bottom:30px;font-size:14px}
+.btn{padding:8px 16px;border:1px solid rgba(0,217,255,0.3);border-radius:8px;background:rgba(0,0,0,0.3);color:#a0a0a0;cursor:pointer;transition:all 0.3s ease;font-size:13px;font-weight:500;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn:hover{background:rgba(0,217,255,0.1);border-color:#00d9ff;color:#fff}
+.btn-success{background:rgba(46,213,115,0.2);border-color:rgba(46,213,115,0.5);color:#2ed573}
+.btn-success:hover{background:rgba(46,213,115,0.3);border-color:#2ed573;color:#fff}
+.btn-danger{background:rgba(255,71,87,0.2);border-color:rgba(255,71,87,0.5);color:#ff4757}
+.btn-danger:hover{background:rgba(255,71,87,0.3);border-color:#ff4757;color:#fff}
+.btn-small{padding:6px 10px;font-size:12px;margin:2px;display:inline-flex;align-items:center;justify-content:center;min-width:32px;min-height:32px}
+.back-link{display:inline-block;padding:8px;border-radius:50%;transition:background-color 0.2s,transform 0.2s}
+.back-link:hover{background-color:#1e3a5f;transform:translateX(-3px)}
+.station-list{margin:20px 0}
+.station-item{background:linear-gradient(135deg,#1e1e2f 0%,#2d2d44 100%);padding:15px;border-radius:10px;margin:10px 0;border-left:4px solid #667eea;display:flex;justify-content:space-between;align-items:center}
+.station-item[style*="dashed"]{border-left:4px dashed #667eea;background:linear-gradient(135deg,#1a1a2e 0%,#1e1e2f 100%)}
+.station-info{flex:1}
+.station-name{font-weight:600;color:#fff;margin-bottom:5px}
+.station-url{font-size:12px;color:#a0a0a0;word-break:break-all}
+.station-actions{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}
+.input-group{margin:15px 0}
+.input-group label{display:block;margin-bottom:8px;color:#a0a0a0;font-weight:600}
+.input-group input{width:100%;padding:12px 15px;border:2px solid #3d3d5c;border-radius:8px;font-size:14px;transition:border-color 0.3s;background-color:#1e1e2f;color:#e0e0e0}
+.input-group input:focus{outline:none;border-color:#4ade80}
+.input-group input::placeholder{color:#666}
+.empty-message{text-align:center;padding:30px;color:#a0a0a0;font-style:italic}
+.now-playing{background:linear-gradient(135deg,#4ade80 0%,#22c55e 100%);padding:15px;border-radius:10px;margin-bottom:20px;text-align:center;color:#fff;font-weight:600;display:none}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:1000;justify-content:center;align-items:center}
+.modal.show{display:flex}
+.modal-content{background:#2d2d44;padding:30px;border-radius:15px;max-width:500px;width:90%;border:1px solid #3d3d5c}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.modal-header h3{color:#fff;margin:0}
+.modal-close{background:none;border:none;color:#a0a0a0;cursor:pointer;padding:4px;display:flex;align-items:center;justify-content:center}
+.modal-close:hover{color:#fff}
+.modal-close svg{width:20px;height:20px}
+</style>
+</head>
+<body>
+<nav class="navbar">
+<a href="/">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+<polyline points="9 22 9 12 15 12 15 22"/>
+</svg>
+Головна
+</a>
+<a href="/stations" class="active">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
+<path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+<line x1="12" y1="19" x2="12" y2="23"/>
+<line x1="8" y1="23" x2="16" y2="23"/>
+</svg>
+Станції
+</a>
+<a href="/sound">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+<path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
+</svg>
+Звук
+</a>
+<a href="/settings">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<circle cx="12" cy="12" r="3"/>
+<path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+</svg>
+WiFi
+</a>
+</nav>
+<div class="container">
+<h1>Радіостанції</h1>
+<p class="subtitle">Керування списком радіостанцій</p>
+<div id="now-playing" class="now-playing">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:8px">
+<path d="M9 18V5l12-2v13"/>
+<circle cx="6" cy="18" r="3"/>
+<circle cx="18" cy="16" r="3"/>
+</svg>
+Зараз грає: <span id="np-station">-</span>
+</div>
+<h3 style="color:#a0a0a0;margin-top:30px;">Список станцій</h3>
+<div id="station-list" class="station-list">
+<div class="empty-message">Завантаження списку...</div>
+</div>
+</div>
+<div id="edit-modal" class="modal">
+<div class="modal-content">
+<div class="modal-header">
+<h3>Редагувати станцію</h3>
+<button class="modal-close" onclick="closeEditModal()" title="Закрити">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<line x1="18" y1="6" x2="6" y2="18"/>
+<line x1="6" y1="6" x2="18" y2="18"/>
+</svg>
+</button>
+</div>
+<input type="hidden" id="edit-index">
+<div class="input-group">
+<label for="edit-name">Назва станції:</label>
+<input type="text" id="edit-name" placeholder="Наприклад: RadioROKS">
+</div>
+<div class="input-group">
+<label for="edit-url">URL потоку:</label>
+<input type="text" id="edit-url" placeholder="http://stream.url:port">
+</div>
+<div class="input-group">
+<label for="edit-volume">Гучність: <span id="edit-volume-value">80</span>%</label>
+<input type="range" id="edit-volume" min="0" max="100" value="80" oninput="document.getElementById('edit-volume-value').textContent=this.value">
+</div>
+<div style="margin-top:20px;">
+<button class="btn btn-success" onclick="saveEdit()">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+<polyline points="17 21 17 13 7 13 7 21"/>
+<polyline points="7 3 7 8 15 8"/>
+</svg>
+Зберегти
+</button>
+</div>
+</div>
+</div>
+<div id="add-modal" class="modal">
+<div class="modal-content">
+<div class="modal-header">
+<h3>Додати нову станцію</h3>
+<button class="modal-close" onclick="closeAddModal()" title="Закрити">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<line x1="18" y1="6" x2="6" y2="18"/>
+<line x1="6" y1="6" x2="18" y2="18"/>
+</svg>
+</button>
+</div>
+<div class="input-group">
+<label for="add-name">Назва станції:</label>
+<input type="text" id="add-name" placeholder="Наприклад: RadioROKS">
+</div>
+<div class="input-group">
+<label for="add-url">URL потоку:</label>
+<input type="text" id="add-url" placeholder="http://stream.url:port">
+</div>
+<div class="input-group">
+<label for="add-volume">Гучність: <span id="add-volume-value">80</span>%</label>
+<input type="range" id="add-volume" min="0" max="100" value="80" oninput="document.getElementById('add-volume-value').textContent=this.value">
+</div>
+<div style="margin-top:20px;">
+<button class="btn btn-success" onclick="addStation()">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<line x1="12" y1="5" x2="12" y2="19"/>
+<line x1="5" y1="12" x2="19" y2="12"/>
+</svg>
+Додати станцію
+</button>
+</div>
+</div>
+</div>
+<script>
+let stations=[];let currentIndex=-1;let nowPlaying=false;
+window.onload=function(){loadStations();checkNowPlaying();setInterval(checkNowPlaying,2000);};
+function loadStations(){
+fetch('/audio/stations')
+.then(response=>response.json())
+.then(stations=>{
+const listEl=document.getElementById('station-list');
+if(stations.length===0){
+listEl.innerHTML='<div class="empty-message">Список порожній. Додайте першу станцію!</div>';
+listEl.innerHTML+=`<div class="station-item" onclick="showAddForm()" style="cursor:pointer;border-style:dashed"><div class="station-info" style="text-align:center;color:#667eea"><div style="font-size:24px">+</div><div style="font-size:12px">Додати першу станцію</div></div></div>`;
+return;
+}
+let html='';
+stations.forEach((station,index)=>{
+const isPlaying=(currentIndex===index&&nowPlaying);
+html+=`<div class="station-item"><div class="station-info"><div class="station-name">${escapeHtml(station.name)}<span style="color:#667eea;font-size:12px">(${station.volume}%)</span></div><div class="station-url">${escapeHtml(station.url)}</div></div><div class="station-actions"><button class="btn btn-small" onclick="moveStation(${station.index},-1)" title="Вгору"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg></button><button class="btn btn-small" onclick="moveStation(${station.index},1)" title="Вниз"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button><button class="btn btn-success btn-small" onclick="editStation(${station.index})" title="Редагувати"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="btn btn-small ${isPlaying?'btn-danger':''}" onclick="togglePlayStation(${station.index})" title="${isPlaying?'Стоп':'Грати'}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${isPlaying?'<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>':'<polygon points="5 3 19 12 5 21 5 3"/>'}</svg></button><button class="btn btn-danger btn-small" onclick="deleteStation(${station.index})" title="Видалити"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></div></div>`;
+});
+html+=`<div class="station-item" onclick="showAddForm()" style="cursor:pointer;border-style:dashed"><div class="station-info" style="text-align:center;color:#667eea"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#667eea" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:8px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><div style="font-size:12px">Додати станцію</div></div></div>`;
+listEl.innerHTML=html;
+})
+.catch(error=>{
+console.error('Помилка завантаження:',error);
+document.getElementById('station-list').innerHTML='<div class="empty-message">Помилка завантаження</div>';
+});
+}
+function showAddForm(){
+document.getElementById('add-name').value='';
+document.getElementById('add-url').value='';
+document.getElementById('add-volume').value=80;
+document.getElementById('add-volume-value').textContent='80';
+document.getElementById('add-modal').classList.add('show');
+}
+function closeAddModal(){
+document.getElementById('add-modal').classList.remove('show');
+}
+function addStation(){
+const name=document.getElementById('add-name').value.trim();
+const url=document.getElementById('add-url').value.trim();
+const volume=parseInt(document.getElementById('add-volume').value);
+if(!name||!url){closeAddModal();loadStations();return;}
+fetch('/audio/stations_add',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({name:name,url:url,volume:volume})
+})
+.then(response=>response.json())
+.then(data=>{
+if(data.status==='ok'){closeAddModal();loadStations();}
+})
+.catch(error=>{
+console.error('Помилка:',error);
+closeAddModal();
+loadStations();
+});
+}
+function editStation(index){
+fetch('/audio/stations')
+.then(response=>response.json())
+.then(stations=>{
+const station=stations.find(s=>s.index===index);
+if(station){
+document.getElementById('edit-index').value=index;
+document.getElementById('edit-name').value=station.name;
+document.getElementById('edit-url').value=station.url;
+document.getElementById('edit-volume').value=station.volume;
+document.getElementById('edit-volume-value').textContent=station.volume;
+document.getElementById('edit-modal').classList.add('show');
+}
+})
+.catch(error=>{
+console.error('Помилка:',error);
+showMessage('Помилка завантаження','error');
+});
+}
+function closeEditModal(){
+document.getElementById('edit-modal').classList.remove('show');
+}
+function saveEdit(){
+const index=parseInt(document.getElementById('edit-index').value);
+const name=document.getElementById('edit-name').value.trim();
+const url=document.getElementById('edit-url').value.trim();
+const volume=parseInt(document.getElementById('edit-volume').value);
+if(!name||!url){closeEditModal();loadStations();return;}
+fetch('/audio/stations_update',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({index:index,name:name,url:url,volume:volume})
+})
+.then(response=>response.json())
+.then(data=>{
+if(data.status==='ok'){closeEditModal();loadStations();}
+})
+.catch(error=>{
+console.error('Помилка:',error);
+closeEditModal();
+loadStations();
+});
+}
+function moveStation(index,direction){
+fetch('/audio/stations_move',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({index:index,direction:direction})
+})
+.then(response=>response.json())
+.then(data=>{
+if(data.status==='ok'){loadStations();}
+})
+.catch(error=>{
+console.error('Помилка:',error);
+loadStations();
+});
+}
+function deleteStation(index){
+if(!confirm('Видалити цю станцію?'))return;
+fetch('/audio/stations_del',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({index:index})
+})
+.then(response=>response.json())
+.then(data=>{
+if(data.status==='ok'){loadStations();}
+})
+.catch(error=>{
+console.error('Помилка:',error);
+loadStations();
+});
+}
+function togglePlayStation(index){
+if(currentIndex===index&&nowPlaying){
+fetch('/audio/stop')
+.then(response=>response.json())
+.then(data=>{
+nowPlaying=false;
+currentIndex=-1;
+loadStations();
+})
+.catch(error=>{
+console.error('Помилка:',error);
+loadStations();
+});
+}else{
+currentIndex=index;
+fetch('/audio/playstation?index='+index)
+.then(response=>response.json())
+.then(data=>{
+if(data.status==='playing'){nowPlaying=true;loadStations();}
+})
+.catch(error=>{
+console.error('Помилка:',error);
+loadStations();
+});
+}
+}
+function checkNowPlaying(){
+fetch('/audio/status')
+.then(response=>response.json())
+.then(data=>{
+const npEl=document.getElementById('now-playing');
+const npStationEl=document.getElementById('np-station');
+if(data.state===2&&data.station){
+npStationEl.textContent=data.station;
+npEl.style.display='block';
+nowPlaying=true;
+currentIndex=data.stationIndex||-1;
+}else{
+npEl.style.display='none';
+nowPlaying=false;
+currentIndex=-1;
+}
+loadStations();
+})
+.catch(error=>{
+console.error('Помилка:',error);
+});
+}
+function escapeHtml(text){
+const div=document.createElement('div');
+div.textContent=text;
+return div.innerHTML;
+}
+document.getElementById('edit-modal').addEventListener('click',function(e){
+if(e.target===this){closeEditModal();}
+});
+document.getElementById('add-modal').addEventListener('click',function(e){
+if(e.target===this){closeAddModal();}
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ESP32 - Налаштування WiFi</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+*{box-sizing:border-box}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;margin:0;padding:20px;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);min-height:100vh;color:#e0e0e0}
+.container{max-width:500px;margin:0 auto;background-color:#2d2d44;padding:30px;border-radius:15px;box-shadow:0 10px 40px rgba(0,0,0,0.5)}
+h1{color:#fff;text-align:center;margin-bottom:10px;font-size:24px}
+.subtitle{text-align:center;color:#a0a0a0;margin-bottom:30px;font-size:14px}
+h4{color:#fff}
+.message{padding:12px;margin:15px 0;border-radius:8px;text-align:center;font-weight:600;display:none}
+.message.success{background-color:#166534;color:#4ade80;border:1px solid #22c55e}
+.message.error{background-color:#991b1b;color:#f87171;border:1px solid #ef4444}
+.message.info{background-color:#1e3a5f;color:#60a5fa;border:1px solid #3b82f6}
+.input-group{margin:15px 0}
+.input-group label{display:block;margin-bottom:8px;color:#a0a0a0;font-weight:600}
+.input-group input{width:100%;padding:12px 15px;border:2px solid #3d3d5c;border-radius:8px;font-size:14px;transition:border-color 0.3s;background-color:#1e1e2f;color:#e0e0e0}
+.input-group input:focus{outline:none;border-color:#667eea}
+.input-group input::placeholder{color:#666}
+.network-card{background:linear-gradient(135deg,#1e1e2f 0%,#2d2d44 100%);padding:20px;border-radius:12px;margin:15px 0;border-left:5px solid #667eea}
+.network-card h4{margin-top:0;margin-bottom:15px;color:#fff;font-size:16px}
+.settings-info{background-color:#1e3a5f;border-left:4px solid #3b82f6;padding:12px 15px;margin:15px 0;border-radius:6px;color:#60a5fa;font-size:14px}
+.btn{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:12px 25px;border:none;border-radius:25px;cursor:pointer;margin:8px;font-size:14px;font-weight:600;transition:transform 0.2s,box-shadow 0.2s;box-shadow:0 4px 15px rgba(102,126,234,0.4);width:100%}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(102,126,234,0.6)}
+.btn:active{transform:translateY(0)}
+.ap-info{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:15px;border-radius:10px;margin-bottom:20px;text-align:center}
+.ap-info h3{margin:0 0 10px 0;color:#fff;font-size:18px}
+.ap-info p{margin:5px 0;color:#fff;font-size:14px}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>📡 ESP32 WiFi Setup</h1>
+<p class="subtitle">Налаштування підключення до Інтернету</p>
+<div class="ap-info">
+<h3>Ви підключені до ESP32</h3>
+<p>Зараз ви підключені до точки доступу ESP32_Radio</p>
+<p>Налаштуйте WiFi для підключення до Інтернету</p>
+</div>
+<div class="settings">
+<div id="message" class="message"></div>
+<p class="settings-info">💡 Можна зберегти до 3-х WiFi мереж. Пристрій спробує підключитися до кожної по черзі.</p>
+<div class="network-card">
+<h4>📡 Мережа #1 (основна)</h4>
+<div class="input-group">
+<label for="ssid1">📶 WiFi SSID:</label>
+<input type="text" id="ssid1" placeholder="Введіть назву WiFi мережі #1">
+</div>
+<div class="input-group">
+<label for="pass1">🔒 WiFi Пароль:</label>
+<input type="password" id="pass1" placeholder="Введіть пароль WiFi #1">
+</div>
+</div>
+<div class="network-card">
+<h4>📡 Мережа #2 (резервна)</h4>
+<div class="input-group">
+<label for="ssid2">📶 WiFi SSID:</label>
+<input type="text" id="ssid2" placeholder="Введіть назву WiFi мережі #2">
+</div>
+<div class="input-group">
+<label for="pass2">🔒 WiFi Пароль:</label>
+<input type="password" id="pass2" placeholder="Введіть пароль WiFi #2">
+</div>
+</div>
+<div class="network-card">
+<h4>📡 Мережа #3 (резервна)</h4>
+<div class="input-group">
+<label for="ssid3">📶 WiFi SSID:</label>
+<input type="text" id="ssid3" placeholder="Введіть назву WiFi мережі #3">
+</div>
+<div class="input-group">
+<label for="pass3">🔒 WiFi Пароль:</label>
+<input type="password" id="pass3" placeholder="Введіть пароль WiFi #3">
+</div>
+</div>
+<button class="btn" onclick="saveWifiSettings()">💾 Зберегти та перезавантажити</button>
+</div>
+</div>
+<script>
+window.onload=function(){loadWifiSettings();};
+function loadWifiSettings(){
+console.log('Loading WiFi settings...');
+fetch('/settings/wifi/load')
+.then(response=>{
+console.log('Response status:',response.status);
+return response.json();
+})
+.then(data=>{
+console.log('Received data:',data);
+document.getElementById('ssid1').value=data.ssid1||'';
+document.getElementById('pass1').value=data.pass1||'';
+document.getElementById('ssid2').value=data.ssid2||'';
+document.getElementById('pass2').value=data.pass2||'';
+document.getElementById('ssid3').value=data.ssid3||'';
+document.getElementById('pass3').value=data.pass3||'';
+console.log('Fields populated');
+})
+.catch(error=>{
+console.error('Помилка завантаження налаштувань:',error);
+});
+}
+function saveWifiSettings(){
+const ssid1=document.getElementById('ssid1').value.trim();
+const pass1=document.getElementById('pass1').value;
+const ssid2=document.getElementById('ssid2').value.trim();
+const pass2=document.getElementById('pass2').value;
+const ssid3=document.getElementById('ssid3').value.trim();
+const pass3=document.getElementById('pass3').value;
+if(!ssid1&&!ssid2&&!ssid3){
+showMessage('Введіть назву хоча б однієї WiFi мережі','error');
+return;
+}
+showMessage('Збереження налаштувань...','info');
+const requestData={};
+if(ssid1){requestData.ssid1=ssid1;requestData.pass1=pass1;}
+if(ssid2){requestData.ssid2=ssid2;requestData.pass2=pass2;}
+if(ssid3){requestData.ssid3=ssid3;requestData.pass3=pass3;}
+fetch('/settings/wifi',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify(requestData)
+})
+.then(response=>response.json())
+.then(data=>{
+showMessage('Налаштування збережено! Пристрій перезавантажується...','success');
+document.getElementById('ssid1').value='';
+document.getElementById('pass1').value='';
+document.getElementById('ssid2').value='';
+document.getElementById('pass2').value='';
+document.getElementById('ssid3').value='';
+document.getElementById('pass3').value='';
+setTimeout(()=>{
+showMessage('Пристрій перезавантажується. Зачекайте...','info');
+},1000);
+setTimeout(()=>{
+window.location.href='/';
+},5000);
+})
+.catch(error=>{
+console.error('Помилка:',error);
+showMessage('Помилка збереження налаштувань','error');
+});
+}
+function showMessage(text,type){
+const messageEl=document.getElementById('message');
+messageEl.textContent=text;
+messageEl.className='message '+type;
+messageEl.style.display='block';
+if(type==='success'||type==='info'){
+setTimeout(()=>{
+messageEl.style.display='none';
+},5000);
+}
+}
+</script>
+</body>
+</html>
