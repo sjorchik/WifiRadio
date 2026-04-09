@@ -35,7 +35,7 @@ typedef enum {
 } PlayerState;
 
 bool audioPlayerInit();
-bool audioPlayerConnect(const char* url, const char* name, uint8_t volume = 80);
+bool audioPlayerConnect(const char* url, const char* name, uint8_t volume = 20);
 int audioPlayerLoop();
 void audioPlayerStop();
 PlayerState audioPlayerGetState();
@@ -47,7 +47,7 @@ const char* audioPlayerGetArtist();
 const char* audioPlayerGetTitle();
 
 // Функції для роботи з радіостанціями
-bool audioPlayerAddStation(const char* name, const char* url, uint8_t volume = 80);
+bool audioPlayerAddStation(const char* name, const char* url, uint8_t volume = 20);
 bool audioPlayerRemoveStation(int index);
 bool audioPlayerGetStation(int index, RadioStation* station);
 int audioPlayerGetStationCount();

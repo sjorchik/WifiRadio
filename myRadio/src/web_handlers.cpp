@@ -286,7 +286,7 @@ void handleAudioStationsAdd() {
   
   String name = doc["name"] | "";
   String url = doc["url"] | "";
-  uint8_t volume = doc["volume"] | 80;
+  uint8_t volume = doc["volume"] | 20;
   
   Serial.printf("[Web] Add station: %s - %s (vol=%d)\n", name.c_str(), url.c_str(), volume);
   
@@ -350,7 +350,7 @@ void handleAudioStationsVolume() {
   deserializeJson(doc, requestBody);
   
   int index = doc["index"] | -1;
-  uint8_t volume = doc["volume"] | 80;
+  uint8_t volume = doc["volume"] | 20;
   
   Serial.printf("[Web] Update station volume: index=%d, volume=%d\n", index, volume);
   
@@ -372,7 +372,7 @@ void handleAudioStationsUpdate() {
   int index = doc["index"] | -1;
   String name = doc["name"] | "";
   String url = doc["url"] | "";
-  uint8_t volume = doc["volume"] | 80;
+  uint8_t volume = doc["volume"] | 20;
   
   Serial.printf("[Web] Update station: index=%d, %s - %s (vol=%d)\n", index, name.c_str(), url.c_str(), volume);
   

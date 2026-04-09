@@ -88,9 +88,10 @@ int8_t tda7318GetBalance();
 /**
  * @brief Перемкнути вхід
  * @param input Вхід (INPUT_WIFI_RADIO, INPUT_COMPUTER, INPUT_TV_BOX, INPUT_AUX)
- * @param gain Gain входу (0-3), за замовчуванням 0
+ * @param gain Gain входу (0-3). Якщо не вказано, використовується дефолтний для цього входу:
+ *             INPUT_WIFI_RADIO=2, INPUT_COMPUTER=2, INPUT_TV_BOX=2, INPUT_AUX=3
  */
-void tda7318SetInput(TDA7318_Input input, uint8_t gain = 0);
+void tda7318SetInput(TDA7318_Input input, int8_t gain = -1);
 
 /**
  * @brief Отримати поточний вхід

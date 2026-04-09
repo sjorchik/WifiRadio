@@ -34,6 +34,14 @@ static TDA7318_State tdaState = {
     .muted = false
 };
 
+// Дефолтний gain для кожного входу (0-3)
+static const uint8_t DEFAULT_INPUT_GAIN[] = {
+    0,  // INPUT_WIFI_RADIO
+    0,  // INPUT_COMPUTER
+    2,  // INPUT_TV_BOX
+    0   // INPUT_AUX (зазвичай потребує більшого gain)
+};
+
 /**
  * @brief Завантажити налаштування для поточного входу
  * @param input Вхід для якого завантажувати налаштування
@@ -278,8 +286,13 @@ int8_t tda7318GetBalance() {
     return tdaState.balance;
 }
 
-void tda7318SetInput(TDA7318_Input input, uint8_t gain) {
+void tda7318SetInput(TDA7318_Input input, int8_t gain) {
     if (input > INPUT_AUX) input = INPUT_WIFI_RADIO;
+
+    // Якщо gain не вказано (-1), використовуємо дефолтний для цього входу
+    if (gain < 0) {
+        gain = DEFAULT_INPUT_GAIN[input];
+    }
     if (gain > 3) gain = 3;
     
     // Зберігаємо налаштування для попереднього входу

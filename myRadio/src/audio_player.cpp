@@ -22,7 +22,7 @@ static char currentStation[64] = "";  // Назва станції, не URL!
 static char currentUrl[128] = "";     // URL станції
 static char currentArtist[64] = "";   // Виконавець
 static char currentTitle[64] = "";    // Назва композиції
-static uint8_t currentVolume = 80;    // Поточна гучність
+static uint8_t currentVolume = 20;    // Поточна гучність
 static int currentStationIndex = -1;  // Індекс поточної станції
 
 // Для відстеження змін треку
@@ -297,10 +297,10 @@ bool audioPlayerGetStation(int index, RadioStation* station) {
     
     String name = audioPreferences.getString(keyName.c_str(), "");
     String url = audioPreferences.getString(keyUrl.c_str(), "");
-    uint8_t volume = audioPreferences.getUChar(keyVol.c_str(), 80);
-    
+    uint8_t volume = audioPreferences.getUChar(keyVol.c_str(), 20);
+
     audioPreferences.end();
-    
+
     if (name.length() == 0 || url.length() == 0) {
         return false;
     }
@@ -389,15 +389,15 @@ bool audioPlayerMoveStation(int index, int direction) {
     String keyVol1 = "vol_" + String(index);
     String name1 = audioPreferences.getString(keyName1.c_str(), "");
     String url1 = audioPreferences.getString(keyUrl1.c_str(), "");
-    uint8_t vol1 = audioPreferences.getUChar(keyVol1.c_str(), 80);
-    
+    uint8_t vol1 = audioPreferences.getUChar(keyVol1.c_str(), 20);
+
     // Отримуємо дані станції з яким міняємо
     String keyName2 = "name_" + String(newIndex);
     String keyUrl2 = "url_" + String(newIndex);
     String keyVol2 = "vol_" + String(newIndex);
     String name2 = audioPreferences.getString(keyName2.c_str(), "");
     String url2 = audioPreferences.getString(keyUrl2.c_str(), "");
-    uint8_t vol2 = audioPreferences.getUChar(keyVol2.c_str(), 80);
+    uint8_t vol2 = audioPreferences.getUChar(keyVol2.c_str(), 20);
     
     if (name1.length() == 0 || name2.length() == 0) {
         audioPreferences.end();

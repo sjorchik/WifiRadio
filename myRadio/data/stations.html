@@ -119,8 +119,8 @@ WiFi
 <input type="text" id="edit-url" placeholder="http://stream.url:port">
 </div>
 <div class="input-group">
-<label for="edit-volume">Гучність: <span id="edit-volume-value">80</span>%</label>
-<input type="range" id="edit-volume" min="0" max="100" value="80" oninput="document.getElementById('edit-volume-value').textContent=this.value">
+<label for="edit-volume">Гучність: <span id="edit-volume-value">20</span>%</label>
+<input type="range" id="edit-volume" min="0" max="100" value="20" oninput="document.getElementById('edit-volume-value').textContent=this.value">
 </div>
 <div style="margin-top:20px;">
 <button class="btn btn-success" onclick="saveEdit()">
@@ -154,8 +154,8 @@ WiFi
 <input type="text" id="add-url" placeholder="http://stream.url:port">
 </div>
 <div class="input-group">
-<label for="add-volume">Гучність: <span id="add-volume-value">80</span>%</label>
-<input type="range" id="add-volume" min="0" max="100" value="80" oninput="document.getElementById('add-volume-value').textContent=this.value">
+<label for="add-volume">Гучність: <span id="add-volume-value">20</span>%</label>
+<input type="range" id="add-volume" min="0" max="100" value="20" oninput="document.getElementById('add-volume-value').textContent=this.value">
 </div>
 <div style="margin-top:20px;">
 <button class="btn btn-success" onclick="addStation()">
@@ -197,8 +197,8 @@ document.getElementById('station-list').innerHTML='<div class="empty-message">П
 function showAddForm(){
 document.getElementById('add-name').value='';
 document.getElementById('add-url').value='';
-document.getElementById('add-volume').value=80;
-document.getElementById('add-volume-value').textContent='80';
+document.getElementById('add-volume').value=20;
+document.getElementById('add-volume-value').textContent='20';
 document.getElementById('add-modal').classList.add('show');
 }
 function closeAddModal(){
