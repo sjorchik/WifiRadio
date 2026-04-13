@@ -9,9 +9,7 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-
-// I2C адреса TDA7318
-#define TDA7318_I2C_ADDR    0x44
+#include "config.h"
 
 // Входи аудіо
 typedef enum {

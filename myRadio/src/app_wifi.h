@@ -17,30 +17,13 @@
 #include <ESPmDNS.h>
 #include <Preferences.h>
 #include <WebServer.h>
-
-// Ключі для збереження в Preferences (для 3-х мереж)
-extern const char* PREFS_KEY_SSID1;
-extern const char* PREFS_KEY_PASS1;
-extern const char* PREFS_KEY_SSID2;
-extern const char* PREFS_KEY_PASS2;
-extern const char* PREFS_KEY_SSID3;
-extern const char* PREFS_KEY_PASS3;
-
-// Максимальна кількість WiFi мереж для збереження
-#define MAX_WIFI_NETWORKS 3
+#include "config.h"
 
 // Структура для зберігання WiFi мережі
 typedef struct {
   String ssid;
   String password;
 } WifiNetwork;
-
-// Облікові дані для власної точки доступу (AP mode)
-extern const char* AP_SSID;
-extern const char* AP_PASSWORD;
-
-// Таймаут підключення (кількість спроб)
-extern const int WIFI_MAX_ATTEMPTS;
 
 /**
  * @brief Ініціалізація WiFi модуля

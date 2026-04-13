@@ -14,7 +14,6 @@ static decode_results irResults;
 // Остання натиснута кнопка
 static uint8_t lastKey = 0xFF;
 static unsigned long lastKeyTime = 0;
-static const unsigned long IR_REPEAT_MS = 200;  // Затримка між повторними натисканнями
 
 void irRemoteInit() {
     Serial.println(F("[IR] Initializing IR receiver..."));

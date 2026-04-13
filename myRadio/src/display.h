@@ -9,29 +9,11 @@
 
 #include <Arduino.h>
 #include <TFT_eSPI.h>
+#include "config.h"
 #include "tda7318.h"
 #include "audio_player.h"  // Для типу RadioStation
 
 // Розміри дисплея (для ландшафтної орієнтації)
-#define DISPLAY_WIDTH   320
-#define DISPLAY_HEIGHT  170
-
-// Кольори (сумісні з TFT_eSPI)
-#define COLOR_BLACK     TFT_BLACK
-#define COLOR_WHITE     TFT_WHITE
-#define COLOR_RED       TFT_RED
-#define COLOR_GREEN     TFT_GREEN
-#define COLOR_BLUE      TFT_BLUE
-#define COLOR_YELLOW    TFT_YELLOW
-#define COLOR_CYAN      TFT_CYAN
-#define COLOR_MAGENTA   TFT_MAGENTA
-#define COLOR_GRAY      0x8410
-#define COLOR_DARKGRAY  0x4208
-#define COLOR_LIGHTGRAY  TFT_LIGHTGREY
-#define COLOR_ORANGE    TFT_ORANGE
-#define COLOR_PURPLE    0x783F
-#define COLOR_NONE      0x1000
-#define COLOR_LIGHT_GREEN 0x9772
 
 /**
  * @brief Встановити підсвітку дисплея

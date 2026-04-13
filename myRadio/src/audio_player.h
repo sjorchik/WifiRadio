@@ -10,14 +10,9 @@
 #include <Arduino.h>
 #include <Audio.h>
 #include <Preferences.h>
+#include "config.h"
 
 // Піни для I2S DAC
-#define I2S_DOUT      27
-#define I2S_BCLK      26
-#define I2S_LRC       25
-
-// Максимальна кількість радіостанцій
-#define MAX_STATIONS  20
 
 // Структура радіостанції
 typedef struct {

@@ -11,18 +11,18 @@
 static Preferences audioPrefs;
 
 // Ключі для збереження
-static const char* PREFS_KEY = "tda7318";
-static const char* INPUT_KEY = "input";
-static const char* VOL_KEY = "vol_%d";    // vol_0, vol_1, vol_2, vol_3
-static const char* BASS_KEY = "bass_%d";  // bass_0, bass_0, bass_2, bass_3
-static const char* TREBLE_KEY = "treble_%d";
-static const char* BAL_KEY = "bal_%d";
+static const char* g_PREFS_KEY = TDA7318_PREFS_KEY;
+static const char* g_INPUT_KEY = TDA7318_INPUT_KEY;
+static const char* g_VOL_KEY = TDA7318_VOL_KEY;    // vol_0, vol_1, vol_2, vol_3
+static const char* g_BASS_KEY = TDA7318_BASS_KEY;  // bass_0, bass_0, bass_2, bass_3
+static const char* g_TREBLE_KEY = TDA7318_TREBLE_KEY;
+static const char* g_BAL_KEY = TDA7318_BAL_KEY;
 
 // Значення за замовчуванням
-static const uint8_t DEFAULT_VOLUME = 50;
-static const int8_t DEFAULT_BASS = 0;
-static const int8_t DEFAULT_TREBLE = 0;
-static const int8_t DEFAULT_BALANCE = 0;
+static const uint8_t g_DEFAULT_VOLUME = DEFAULT_VOLUME;
+static const int8_t g_DEFAULT_BASS = DEFAULT_BASS;
+static const int8_t g_DEFAULT_TREBLE = DEFAULT_TREBLE;
+static const int8_t g_DEFAULT_BALANCE = DEFAULT_BALANCE;
 
 // Глобальна змінна стану
 static TDA7318_State tdaState = {
@@ -47,23 +47,23 @@ static const uint8_t DEFAULT_INPUT_GAIN[] = {
  * @param input Вхід для якого завантажувати налаштування
  */
 static void tda7318LoadSettingsForInput(TDA7318_Input input) {
-    if (!audioPrefs.begin(PREFS_KEY, true)) {
+    if (!audioPrefs.begin(g_PREFS_KEY, true)) {
         return;
     }
-    
+
     char key[32];
-    
-    sprintf(key, VOL_KEY, input);
-    tdaState.volume = audioPrefs.getUChar(key, DEFAULT_VOLUME);
-    
-    sprintf(key, BASS_KEY, input);
-    tdaState.bass = audioPrefs.getChar(key, DEFAULT_BASS);
-    
-    sprintf(key, TREBLE_KEY, input);
-    tdaState.treble = audioPrefs.getChar(key, DEFAULT_TREBLE);
-    
-    sprintf(key, BAL_KEY, input);
-    tdaState.balance = audioPrefs.getChar(key, DEFAULT_BALANCE);
+
+    sprintf(key, g_VOL_KEY, input);
+    tdaState.volume = audioPrefs.getUChar(key, g_DEFAULT_VOLUME);
+
+    sprintf(key, g_BASS_KEY, input);
+    tdaState.bass = audioPrefs.getChar(key, g_DEFAULT_BASS);
+
+    sprintf(key, g_TREBLE_KEY, input);
+    tdaState.treble = audioPrefs.getChar(key, g_DEFAULT_TREBLE);
+
+    sprintf(key, g_BAL_KEY, input);
+    tdaState.balance = audioPrefs.getChar(key, g_DEFAULT_BALANCE);
     
     audioPrefs.end();
 
@@ -79,12 +79,12 @@ static void tda7318LoadSettingsForInput(TDA7318_Input input) {
  * @brief Завантажити налаштування (вхід та параметри)
  */
 static void tda7318LoadSettings() {
-    if (!audioPrefs.begin(PREFS_KEY, true)) {
+    if (!audioPrefs.begin(g_PREFS_KEY, true)) {
         return;
     }
-    
+
     // Завантажуємо збережений вхід
-    uint8_t savedInput = audioPrefs.getUChar(INPUT_KEY, 0);
+    uint8_t savedInput = audioPrefs.getUChar(g_INPUT_KEY, 0);
     if (savedInput > 3) savedInput = 0;
     tdaState.input = (TDA7318_Input)savedInput;
     
@@ -98,26 +98,26 @@ static void tda7318LoadSettings() {
  * @brief Зберегти налаштування для поточного входу
  */
 static void tda7318SaveSettings() {
-    if (!audioPrefs.begin(PREFS_KEY, false)) {
+    if (!audioPrefs.begin(g_PREFS_KEY, false)) {
         return;
     }
-    
+
     char key[32];
-    
+
     // Зберігаємо поточний вхід
-    audioPrefs.putUChar(INPUT_KEY, tdaState.input);
-    
+    audioPrefs.putUChar(g_INPUT_KEY, tdaState.input);
+
     // Зберігаємо налаштування для поточного входу
-    sprintf(key, VOL_KEY, tdaState.input);
+    sprintf(key, g_VOL_KEY, tdaState.input);
     audioPrefs.putUChar(key, tdaState.volume);
-    
-    sprintf(key, BASS_KEY, tdaState.input);
+
+    sprintf(key, g_BASS_KEY, tdaState.input);
     audioPrefs.putChar(key, tdaState.bass);
-    
-    sprintf(key, TREBLE_KEY, tdaState.input);
+
+    sprintf(key, g_TREBLE_KEY, tdaState.input);
     audioPrefs.putChar(key, tdaState.treble);
-    
-    sprintf(key, BAL_KEY, tdaState.input);
+
+    sprintf(key, g_BAL_KEY, tdaState.input);
     audioPrefs.putChar(key, tdaState.balance);
     
     audioPrefs.end();
@@ -308,11 +308,11 @@ void tda7318SetInput(TDA7318_Input input, int8_t gain) {
     
     // Зберігаємо новий вхід
     tdaState.input = input;
-    
-    if (!audioPrefs.begin(PREFS_KEY, false)) {
+
+    if (!audioPrefs.begin(g_PREFS_KEY, false)) {
         return;
     }
-    audioPrefs.putUChar(INPUT_KEY, input);
+    audioPrefs.putUChar(g_INPUT_KEY, input);
     audioPrefs.end();
     
     // Завантажуємо налаштування для нового входу

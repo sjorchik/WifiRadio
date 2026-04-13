@@ -5,28 +5,14 @@
 
 #include "app_wifi.h"
 #include <ArduinoJson.h>
+#include "config.h"
 
 // Глобальне посилання на веб-сервер (оголошено в main.cpp)
 extern WebServer server;
 
-// Ключі для збереження в Preferences (для 3-х мереж)
-const char* PREFS_KEY_SSID1 = "ssid1";
-const char* PREFS_KEY_PASS1 = "pass1";
-const char* PREFS_KEY_SSID2 = "ssid2";
-const char* PREFS_KEY_PASS2 = "pass2";
-const char* PREFS_KEY_SSID3 = "ssid3";
-const char* PREFS_KEY_PASS3 = "pass3";
-
 // Масив ключів для зручного доступу
-const char* ssidKeys[MAX_WIFI_NETWORKS] = {PREFS_KEY_SSID1, PREFS_KEY_SSID2, PREFS_KEY_SSID3};
-const char* passKeys[MAX_WIFI_NETWORKS] = {PREFS_KEY_PASS1, PREFS_KEY_PASS2, PREFS_KEY_PASS3};
-
-// Облікові дані для власної точки доступу (AP mode)
-const char* AP_SSID = "ESP32_Radio";
-const char* AP_PASSWORD = "123456789";
-
-// Таймаут підключення (кількість спроб * 500мс)
-const int WIFI_MAX_ATTEMPTS = 20;  // 20 * 500мс = 10 секунд
+const char* ssidKeys[MAX_WIFI_NETWORKS] = {WIFI_SSID_KEY_1, WIFI_SSID_KEY_2, WIFI_SSID_KEY_3};
+const char* passKeys[MAX_WIFI_NETWORKS] = {WIFI_PASS_KEY_1, WIFI_PASS_KEY_2, WIFI_PASS_KEY_3};
 
 // Об'єкт для збереження даних в постійну пам'ять (NVS)
 Preferences preferences;

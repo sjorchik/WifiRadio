@@ -8,12 +8,9 @@
 #define ENCODER_H
 
 #include <Arduino.h>
+#include "config.h"
 
 // Піни енкодера (з зовнішньою підтяжкою до 3.3V)
-#define ENC_A_PIN       13      // GPIO13
-#define ENC_B_PIN       14      // GPIO14
-#define ENC_BTN_PIN     19      // Кнопка енкодера
-#define ENC_PULSES_PER_STEP 4   // Кількість імпульсів на крок (для стабільності)
 
 // Стан енкодера
 typedef struct {

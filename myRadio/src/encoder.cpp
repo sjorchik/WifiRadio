@@ -7,10 +7,6 @@
 #include "encoder.h"
 #include <AiEsp32RotaryEncoder.h>
 
-// Конфігурація енкодера
-#define ENC_BTN_DEBOUNCE_MS 50      // Час антидребезгу для кнопки
-#define ENC_LONG_PRESS_MS   1000    // Час для довгого натискання кнопки
-
 // Глобальний об'єкт енкодера
 static AiEsp32RotaryEncoder rotaryEncoder = AiEsp32RotaryEncoder(
     ENC_A_PIN, 

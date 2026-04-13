@@ -8,14 +8,9 @@
 
 #include <Arduino.h>
 #include <OneButton.h>
+#include "config.h"
 
 // Піни кнопок (з зовнішньою підтяжкою до 3.3V)
-#define BTN_PWR_PIN     33
-#define BTN_LEFT_PIN    35
-#define BTN_RIGHT_PIN   39
-#define BTN_UP_PIN      32
-#define BTN_DOWN_PIN    36
-#define BTN_OK_PIN      34
 
 // Ідентифікатори кнопок
 typedef enum {

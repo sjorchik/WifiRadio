@@ -5,9 +5,6 @@
 
 #include "buttons.h"
 
-// Конфігурація кнопок
-#define LONG_PRESS_MS         1000    // Час для довгого натискання (1 сек)
-
 // Масив об'єктів кнопок OneButton
 static OneButton* buttons[BTN_COUNT] = {nullptr};
 
