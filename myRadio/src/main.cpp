@@ -519,16 +519,18 @@ void loop() {
   }
 
   // Обробка ІЧ пульта (працює в активному режимі)
-  // Ігноруємо ІЧ сигнали після першого 0x0C (cooldown)
   irRemoteLoop();
   uint8_t irKey = irRemoteGetLastKey();
   if (irKey != 0xFF) {
-    if (millis() - irLastKeyTime < IR_COOLDOWN_MS) {
-      Serial.printf("[IR] Ignored - cooldown active (%lu ms)\n", millis() - irLastKeyTime);
-    } else {
+    // Для кнопки POWER застосовуємо cooldown щоб уникнути подвійних спрацювань
+    if (irKey == IR_BTN_POWER) {
+      if (millis() - irLastKeyTime < IR_COOLDOWN_MS) {
+        Serial.printf("[IR] POWER cooldown active (%lu ms)\n", millis() - irLastKeyTime);
+        return;
+      }
       irLastKeyTime = millis();  // Запам'ятовуємо час сигналу
-      handleIRRemote(irKey);
     }
+    handleIRRemote(irKey);
   }
 
   server.handleClient();

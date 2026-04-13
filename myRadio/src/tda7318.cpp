@@ -67,6 +67,10 @@ static void tda7318LoadSettingsForInput(TDA7318_Input input) {
     
     audioPrefs.end();
     
+    // Обмежуємо значення балансу до допустимого діапазону
+    if (tdaState.balance < -7) tdaState.balance = -7;
+    if (tdaState.balance > 7) tdaState.balance = 7;
+    
     Serial.printf("[TDA7318] Loaded settings for input %d: vol=%d, bass=%d, treble=%d, bal=%d\n",
                   input, tdaState.volume, tdaState.bass, tdaState.treble, tdaState.balance);
 }
@@ -184,9 +188,8 @@ bool tda7318Init() {
     tda7318SetVolume(tdaState.volume);
     tda7318SetBass(tdaState.bass);
     tda7318SetTreble(tdaState.treble);
-    tda7318SetBalance(tdaState.balance);
     tda7318SetInput(tdaState.input);
-    
+
     // Встановити gain для всіх динаміків на максимум (0 = max gain)
     Wire.beginTransmission(TDA7318_I2C_ADDR);
     Wire.write(tda7318SpeakerAtt(1, 0));
@@ -194,6 +197,10 @@ bool tda7318Init() {
     Wire.write(tda7318SpeakerAtt(3, 0));
     Wire.write(tda7318SpeakerAtt(4, 0));
     Wire.endTransmission();
+
+    // Встановити баланс ПІСЛЯ налаштування speaker attenuation
+    // (інакше balance буде скинутий)
+    tda7318SetBalance(tdaState.balance);
     
     Serial.println(F("[TDA7318] Initialized"));
     return true;
