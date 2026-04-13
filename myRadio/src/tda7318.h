@@ -26,7 +26,7 @@ typedef struct {
     uint8_t volume;         // Гучність 0-100
     int8_t bass;            // Бас -7 до +7
     int8_t treble;          // Високі -7 до +7
-    int8_t balance;         // Баланс L/R -7 до +7 (0 = центр)
+    int8_t balance;         // Баланс L/R -31 до +31 (0 = центр)
     TDA7318_Input input;    // Поточний вхід
     bool muted;             // Стан Mute
 } TDA7318_State;

@@ -615,10 +615,10 @@ void loop() {
           }
         } else if (activeToneControl == 3) {
           int8_t balance = tda7318GetBalance();
-          if (encChange > 0 && balance < 7) {
+          if (encChange > 0 && balance < 31) {
             balance++;
             tda7318SetBalance(balance);
-          } else if (encChange < 0 && balance > -7) {
+          } else if (encChange < 0 && balance > -31) {
             balance--;
             tda7318SetBalance(balance);
           }
@@ -898,13 +898,13 @@ void loop() {
         // Баланс
         int8_t balance = tda7318GetBalance();
         if (encChange > 0) {
-          if (balance < 7) {
+          if (balance < 31) {
             balance++;
             tda7318SetBalance(balance);
             Serial.printf("[Encoder] Balance UP: %d\n", balance);
           }
         } else {
-          if (balance > -7) {
+          if (balance > -31) {
             balance--;
             tda7318SetBalance(balance);
             Serial.printf("[Encoder] Balance DOWN: %d\n", balance);

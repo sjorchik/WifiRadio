@@ -66,10 +66,10 @@ static void tda7318LoadSettingsForInput(TDA7318_Input input) {
     tdaState.balance = audioPrefs.getChar(key, DEFAULT_BALANCE);
     
     audioPrefs.end();
-    
+
     // Обмежуємо значення балансу до допустимого діапазону
-    if (tdaState.balance < -7) tdaState.balance = -7;
-    if (tdaState.balance > 7) tdaState.balance = 7;
+    if (tdaState.balance < -31) tdaState.balance = -31;
+    if (tdaState.balance > 31) tdaState.balance = 31;
     
     Serial.printf("[TDA7318] Loaded settings for input %d: vol=%d, bass=%d, treble=%d, bal=%d\n",
                   input, tdaState.volume, tdaState.bass, tdaState.treble, tdaState.balance);
@@ -262,29 +262,30 @@ int8_t tda7318GetTreble() {
 }
 
 void tda7318SetBalance(int8_t value) {
-    if (value < -7) value = -7;
-    if (value > 7) value = 7;
+    if (value < -31) value = -31;
+    if (value > 31) value = 31;
     tdaState.balance = value;
-    
+
     // Розрахунок гучності для лівого та правого каналів
-    // -7 = лівий макс, правий мін; +7 = правий макс, лівий мін
+    // -31 = лівий макс, правий мін; +31 = правий макс, лівий мін
+    // Значення 0-31 відповідає рівню затухання (0 = без затухання)
     char leftGain, rightGain;
     if (value < 0) {
-        leftGain = 0;  // Лівий канал без змін
-        rightGain = (char)map(abs(value), 0, 7, 0, 31);  // Правий канал затихається
+        leftGain = 0;                      // Лівий канал без змін
+        rightGain = abs(value);            // Правий канал затихається (0-31)
     } else if (value > 0) {
-        leftGain = (char)map(value, 0, 7, 0, 31);  // Лівий канал затихається
-        rightGain = 0;  // Правий канал без змін
+        leftGain = value;                  // Лівий канал затихається (0-31)
+        rightGain = 0;                     // Правий канал без змін
     } else {
         leftGain = 0;
         rightGain = 0;
     }
-    
+
     Wire.beginTransmission(TDA7318_I2C_ADDR);
     Wire.write(0b10000000 | leftGain);   // Лівий канал (Speaker 1)
     Wire.write(0b10100000 | rightGain);  // Правий канал (Speaker 2)
     Wire.endTransmission();
-    
+
     tda7318SaveSettings();
     Serial.printf("[TDA7318] Balance set to: %d (L:%d, R:%d)\n", value, leftGain, rightGain);
 }

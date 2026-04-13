@@ -539,8 +539,8 @@ void handleSoundBalance() {
   String value = server.arg("value");
   int8_t balance = value.toInt();
 
-  if (balance < -7) balance = -7;
-  if (balance > 7) balance = 7;
+  if (balance < -31) balance = -31;
+  if (balance > 31) balance = 31;
   tda7318SetBalance(balance);
 
   // Оновити індикатор балансу на дисплеї

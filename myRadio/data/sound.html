@@ -25,6 +25,7 @@ input[type="range"]{writing-mode:slider-lr;appearance:slider-vertical;width:8px;
 input[type="range"]::-webkit-slider-thumb{appearance:none;width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);cursor:pointer;box-shadow:0 2px 8px rgba(102,126,234,0.4)}
 input[type="range"]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);cursor:pointer;border:none;box-shadow:0 2px 8px rgba(102,126,234,0.4)}
 .slider-labels{display:flex;justify-content:space-between;width:100%;font-size:11px;color:#666}
+.slider-hint{font-size:10px;color:#555;text-align:center;margin-top:4px;opacity:0.7}
 .btn-group{display:flex;gap:4px;margin-top:8px}
 .btn{padding:6px 8px;border:1px solid rgba(0,217,255,0.3);border-radius:6px;background:rgba(0,0,0,0.3);color:#a0a0a0;cursor:pointer;transition:all 0.3s ease;font-size:11px;font-weight:500;min-width:32px;text-align:center}
 .btn:hover{background:rgba(0,217,255,0.1);border-color:#00d9ff;color:#fff}
@@ -196,12 +197,13 @@ AUX
 </h3>
 <div class="control-group">
 <div class="slider-container">
-<input type="range" id="balance" min="-7" max="7" value="0" orient="vertical">
+<input type="range" id="balance" min="-31" max="31" value="0" orient="vertical">
 <div class="slider-value" id="balance-value">0</div>
 </div>
 <div class="slider-labels">
 <span>L</span><span>R</span>
 </div>
+<div class="slider-hint">Діапазон: -31...+31</div>
 <div class="btn-group">
 <button class="btn" onclick="adjustBalance(-1)">L</button>
 <button class="btn" onclick="adjustBalance(0)">C</button>
@@ -318,8 +320,9 @@ document.getElementById('balance').addEventListener('wheel', function(e) {
     e.preventDefault();
     let value = parseInt(this.value);
     value += e.deltaY > 0 ? -1 : 1;
-    if (value < -7) value = -7;
-    if (value > 7) value = 7;
+    // Колесо миші працює в повному діапазоні -31...+31
+    if (value < -31) value = -31;
+    if (value > 31) value = 31;
     this.value = value;
     document.getElementById('balance-value').textContent = formatValue(value);
     fetch('/sound/balance?value=' + value)
@@ -379,8 +382,9 @@ function adjustBalance(delta) {
         value = 0;  // Скидання на центр
     } else {
         value = parseInt(slider.value) + delta;
-        if (value < -7) value = -7;
-        if (value > 7) value = 7;
+        // Кнопки працюють в повному діапазоні -31...+31
+        if (value < -31) value = -31;
+        if (value > 31) value = 31;
     }
     slider.value = value;
     document.getElementById('balance-value').textContent = formatValue(value);

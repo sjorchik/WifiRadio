@@ -170,7 +170,7 @@ void displayDrawVolumeIcon(int x, int y, uint8_t volume, uint16_t color);
  * @param wifiSSID Назва WiFi мережі
  * @param wifiIP IP адреса
  * @param tdaVolume Гучність TDA7318 (0-100)
- * @param balance Баланс L/R (-7 до +7)
+ * @param balance Баланс L/R (-31 до +31)
  */
 void displayShowRadioInfo(const char* stationName, const char* trackArtist, const char* trackTitle, uint8_t volume, TDA7318_Input activeInput = INPUT_WIFI_RADIO, const char* wifiSSID = "", const char* wifiIP = "", uint8_t tdaVolume = 0, int8_t balance = 0);
 
@@ -183,7 +183,7 @@ void displayShowRadioInfo(const char* stationName, const char* trackArtist, cons
  * @param volume Гучність ESP32 (0-100)
  * @param tdaVolume Гучність TDA7318 (0-100)
  * @param activeInput Активний вхід (для відображення інформації тільки на WiFi)
- * @param balance Баланс L/R (-7 до +7)
+ * @param balance Баланс L/R (-31 до +31)
  */
 void displayUpdateStationAndTrack(const char* stationName, const char* trackArtist, const char* trackTitle, bool isPlaying = true, uint8_t volume = 0, uint8_t tdaVolume = 0, TDA7318_Input activeInput = INPUT_WIFI_RADIO, int8_t balance = 0);
 
@@ -207,7 +207,7 @@ void displayDrawTDAVolumeBar(uint8_t volume, bool isActive = true);
 
 /**
  * @brief Намалювати вертикальний індикатор балансу справа
- * @param balance Баланс L/R (-7 до +7)
+ * @param balance Баланс L/R (-31 до +31)
  * @param isActive Чи активний цей індикатор (true = блакитний, false = сірий)
  */
 void displayDrawBalanceBar(int8_t balance, bool isActive = true);
@@ -216,7 +216,7 @@ void displayDrawBalanceBar(int8_t balance, bool isActive = true);
  * @brief Оновити тільки індикатори гучності (без перемальовки всього екрану)
  * @param volume Гучність ESP32 (0-100)
  * @param tdaVolume Гучність TDA7318 (0-100)
- * @param balance Баланс L/R (-7 до +7)
+ * @param balance Баланс L/R (-31 до +31)
  */
 void displayUpdateVolumeBars(uint8_t volume, uint8_t tdaVolume, int8_t balance);
 
@@ -264,7 +264,7 @@ void displayUpdateToneBarTrebleSegment(int8_t oldValue, int8_t newValue, int bar
  * @param volume Гучність (0-100)
  * @param bass Бас (-7 до +7)
  * @param treble Тембр (-7 до +7)
- * @param balance Баланс (-7 до +7)
+ * @param balance Баланс (-31 до +31)
  */
 void displayUpdateActiveIndicator(uint8_t oldControl, uint8_t newControl, uint8_t volume, int8_t bass, int8_t treble, int8_t balance);
 
@@ -278,7 +278,7 @@ void displayUpdateActiveControlFrame(uint8_t oldControl, uint8_t newControl);
 /**
  * @brief Показати екран налаштувань звуку
  * @param volume Гучність (0-100)
- * @param balance Баланс (-7 до +7)
+ * @param balance Баланс (-31 до +31)
  * @param bass Бас (-7 до +7)
  * @param treble Тембр (-7 до +7)
  * @param activeControl Активний елемент керування (0=гучність, 1=бас, 2=тембр, 3=баланс)

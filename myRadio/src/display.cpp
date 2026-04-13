@@ -634,15 +634,19 @@ void displayDrawTDAVolumeBar(uint8_t volume, bool isActive) {
 }
 
 void displayDrawBalanceBar(int8_t balance, bool isActive) {
-    // Баланс від -7 до +7 (0 = центр)
-    // -7 = повністю вліво, 0 = центр, +7 = повністю вправо
+    // Баланс від -31 до +31 (0 = центр)
+    // 0 = тільки центральний сегмент (i=7)
+    // +1...+31 = сегменти від центру вгору (i=7, 8, 9...)
+    // -1...-31 = сегменти від центру вниз (i=7, 6, 5...)
+    // Використовуємо часткове заповнення сегментів (як в індикаторі гучності)
 
     const int baseBarWidth = 8;  // Базова ширина середнього сегмента
     const int barY = 35;  // Починається після верхньої панелі
     const int segmentHeight = 6;  // Висота одного прямокутника
     const int segmentGap = 1;  // Проміжок між прямокутниками
-    const int totalSegments = 15;  // Кількість прямокутників
+    const int totalSegments = 15;  // Кількість прямокутників (0-14)
     const int widthIncrement = 5;  // Збільшення ширини від центру
+    const int centerIndex = 7;  // Індек центрального сегмента
 
     // Максимальна ширина індикатора (найширший сегмент)
     const int maxBarWidth = baseBarWidth + (7 * widthIncrement);  // 8 + 35 = 43px
@@ -653,46 +657,116 @@ void displayDrawBalanceBar(int8_t balance, bool isActive) {
     // Колір сегментів: блакитний якщо активний, сірий якщо ні
     uint16_t segmentBaseColor = isActive ? COLOR_CYAN : COLOR_DARKGRAY;
 
+    // Розраховуємо позицію заповнення
+    // balance = 0 → position = 7.0 (центр)
+    // balance = +31 → position = 14.0 (верх)
+    // balance = -31 → position = 0.0 (низ)
+    float position = centerIndex + (float)balance * 7.0f / 31.0f;
+    
+    // Визначаємо діапазон заповнених сегментів
+    int filledFrom, filledTo;
+    float partialPosition = 0.0f;
+    bool hasPartial = false;
+    
+    if (balance >= 0) {
+        // Від центру вгору: сегменти 7, 8, 9... position
+        filledFrom = centerIndex;
+        filledTo = (int)position;
+        if (filledTo > 14) filledTo = 14;
+        
+        // Часткове заповнення якщо є дробова частина
+        if (filledTo < 14 && position - filledTo > 0.01f) {
+            hasPartial = true;
+            partialPosition = position - filledTo;  // 0.0 - 1.0
+        }
+    } else {
+        // Від центру вниз: сегменти position, position+1... 7
+        filledTo = centerIndex;
+        filledFrom = (int)position;
+        if (filledFrom < 0) filledFrom = 0;
+        
+        // Часткове заповнення якщо є дробова частина
+        if (filledFrom > 0 && filledFrom - position > 0.01f) {
+            hasPartial = true;
+            partialPosition = filledFrom - position;  // 0.0 - 1.0
+        }
+    }
+    
     // Малюємо прямокутники знизу вгору
     for (int i = 0; i < totalSegments; i++) {
         int y = barY + (totalSegments - 1 - i) * (segmentHeight + segmentGap);
 
         // Розраховуємо ширину сегмента (найвужчий в центрі, найширший по краях)
-        int distanceFromCenter = abs(i - 7);  // Відстань від центру (0-7)
+        int distanceFromCenter = abs(i - centerIndex);  // Відстань від центру (0-7)
         int segmentWidth = baseBarWidth + (distanceFromCenter * widthIncrement);
 
         // Вирівнюємо по правій стороні (правий край всіх сегментів на одній лінії)
         int segmentX = barX + (maxBarWidth - segmentWidth);
 
-        // Заповнення залежить від напрямку балансу
-        // Сегмент 7 (центр, i=7) - заповнений завжди
-        // Баланс > 0 (вправо): заповнюємо сегменти 7, 8, 9... (i > 7)
-        // Баланс < 0 (вліво): заповнюємо сегменти 7, 6, 5... (i < 7)
+        // Визначаємо заповнення сегмента
         bool isFilled = false;
-
-        if (balance >= 0) {
-            // Центр або вправо: заповнюємо від центру вправо
-            // Сегмент 7 завжди заповнений
-            // Сегменти 8-14 заповнені якщо balance >= (i - 7)
-            if (i >= 7) {
-                // Праві сегменти (8-14) або центр (7)
-                isFilled = (balance >= (i - 7));
+        bool isPartial = false;
+        float partialAmount = 0.0f;
+        
+        if (i >= filledFrom && i <= filledTo) {
+            // Сегмент в діапазоні заповнення
+            if (balance >= 0) {
+                // Заповнення йде знизу вгору від центру
+                if (i == filledTo && hasPartial) {
+                    // Останній сегмент - часткове заповнення знизу
+                    isFilled = true;
+                    isPartial = true;
+                    partialAmount = partialPosition;
+                } else {
+                    isFilled = true;
+                }
+            } else {
+                // Заповнення йде зверху вниз від центру
+                if (i == filledFrom && hasPartial) {
+                    // Перший сегмент - часткове заповнення зверху
+                    isFilled = true;
+                    isPartial = true;
+                    partialAmount = partialPosition;
+                } else {
+                    isFilled = true;
+                }
             }
-            // Ліві сегменти (0-6) не заповнені при balance >= 0
-        } else {
-            // Вліво: заповнюємо від центру вліво
-            // Сегмент 7 завжди заповнений
-            // Сегменти 6-0 заповнені якщо abs(balance) >= (7 - i)
-            if (i <= 7) {
-                // Ліві сегменти (0-6) або центр (7)
-                isFilled = (abs(balance) >= (7 - i));
-            }
-            // Праві сегменти (8-14) не заповнені при balance < 0
+        }
+        
+        // Для balance = 0 тільки центральний сегмент заповнений
+        if (balance == 0 && i == centerIndex) {
+            isFilled = true;
+            isPartial = false;
         }
 
         if (isFilled) {
-            // Сегмент заповнений кольором
-            tft.fillRect(segmentX, y, segmentWidth, segmentHeight, segmentBaseColor);
+            if (isPartial && partialAmount > 0.0f) {
+                // Часткове заповнення - малюємо тільки частину висоти
+                int fillHeight = (int)(segmentHeight * partialAmount);
+                if (fillHeight < 1) fillHeight = 1;  // Мінімум 1 піксель
+                
+                if (balance >= 0) {
+                    // Заповнення йде знизу вгору - частковий сегмент заповнюється знизу
+                    tft.fillRect(segmentX, y + (segmentHeight - fillHeight), segmentWidth, fillHeight, segmentBaseColor);
+                    // Верхню частину залишаємо чорною
+                    if (fillHeight < segmentHeight) {
+                        tft.fillRect(segmentX, y, segmentWidth, segmentHeight - fillHeight, COLOR_BLACK);
+                    }
+                } else {
+                    // Заповнення йде зверху вниз - частковий сегмент заповнюється зверху
+                    tft.fillRect(segmentX, y, segmentWidth, fillHeight, segmentBaseColor);
+                    // Нижню частину залишаємо чорною
+                    if (fillHeight < segmentHeight) {
+                        tft.fillRect(segmentX, y + fillHeight, segmentWidth, segmentHeight - fillHeight, COLOR_BLACK);
+                    }
+                }
+                
+                // Рамка навколо всього сегмента
+                tft.drawRect(segmentX, y, segmentWidth, segmentHeight, COLOR_DARKGRAY);
+            } else {
+                // Повне заповнення
+                tft.fillRect(segmentX, y, segmentWidth, segmentHeight, segmentBaseColor);
+            }
         } else {
             // Сегмент пустий - спочатку чорний, потім сіра рамка
             tft.fillRect(segmentX, y, segmentWidth, segmentHeight, COLOR_BLACK);
