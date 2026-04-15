@@ -51,8 +51,8 @@
 // ============================================================================
 
 // --- ІЧ пульт ---
-#define IR_COOLDOWN_MS          500   // Затримка після сигналу POWER (захист від подвійних спрацювань)
-#define IR_REPEAT_MS            200   // Затримка між повторними натисканнями ІЧ
+#define IR_COOLDOWN_MS          1000 //500  // Затримка після сигналу POWER (захист від подвійних спрацювань)
+#define IR_REPEAT_MS            50   //200  // Затримка між повторними натисканнями ІЧ
 #define IR_KEY_BUFFER_MS        100   // Час буферизації ІЧ команд
 
 // --- Кнопки ---
@@ -70,8 +70,11 @@
 #define OK_COOLDOWN_MS              300    // Затримка після LONG_PRESS кнопки OK
 
 // --- WiFi ---
-#define WIFI_MAX_ATTEMPTS       20    // Максимальна кількість спроб підключення WiFi
+#define WIFI_MAX_ATTEMPTS       40    // Максимальна кількість спроб підключення WiFi (збільшено з 20)
 #define WIFI_RETRY_DELAY_MS     500   // Затримка між спробами підключення (500 мс)
+#define WIFI_RECONNECT_INTERVAL_MS  5000  // Інтервал спроб перепідключення (5 сек)
+#define WIFI_MIN_RSSI_THRESHOLD   -85   // Мінімальний рівень сигналу (dBm)
+#define WIFI_PERSISTENT_CONNECTION true  // Зберігати WiFi з'єднання активним
 
 // --- Затримки I2C ---
 #define I2C_INIT_DELAY_MS       10    // Затримка після ініціалізації I2C

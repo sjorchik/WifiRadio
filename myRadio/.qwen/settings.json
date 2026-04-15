@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pio *)",
+      "Bash(platformio *)"
+    ]
+  },
+  "$version": 3
+}

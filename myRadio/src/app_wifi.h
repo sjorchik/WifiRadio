@@ -92,6 +92,18 @@ void appWifiClearCredentials();
 bool appWifiIsConnected();
 
 /**
+ * @brief Отримати рівень сигналу WiFi (RSSI)
+ * @return RSSI в dBm або 0 якщо не підключено
+ */
+int32_t appWifiGetRSSI();
+
+/**
+ * @brief Перевірити якість WiFi з'єднання
+ * @return true якщо якість достатня для потоку
+ */
+bool appWifiCheckConnectionQuality();
+
+/**
  * @brief Отримання IP-адреси пристрою
  *
  * @return IP-адреса у вигляді рядка, або порожній рядок якщо не підключено

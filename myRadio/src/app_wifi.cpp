@@ -36,13 +36,14 @@ bool appWifiInit() {
 
 /**
  * @brief Підключення до WiFi мережі
- * 
+ *
  * Намагається підключитися до всіх збережених мереж по черзі.
+ * Оптимізовано для стабільного потоку аудіо.
  */
 bool appWifiConnect(const char* ssid, const char* password) {
   WifiNetwork networks[MAX_WIFI_NETWORKS];
   size_t count = 0;
-  
+
   // Якщо SSID та пароль вказані - використовуємо їх
   if (ssid != nullptr && password != nullptr) {
     networks[0].ssid = String(ssid);
@@ -55,42 +56,62 @@ bool appWifiConnect(const char* ssid, const char* password) {
       return false;
     }
   }
-  
+
+  // Оптимізація WiFi для стабільного потоку
+  WiFi.setSleep(false);  // Вимикаємо WiFi sleep mode для стабільності
+  Serial.println(F("[WiFi] WiFi sleep mode disabled for streaming stability"));
+
   // Намагаємось підключитися до кожної мережі
   for (size_t i = 0; i < count; i++) {
     if (networks[i].ssid.length() == 0) continue;  // Пропускаємо пусті
-    
+
     Serial.print(F("[WiFi] Спроба підключення #"));
     Serial.print(i + 1);
     Serial.print(F(" до мережі: "));
     Serial.println(networks[i].ssid);
-    
+
     // Ініціюємо підключення
     WiFi.begin(networks[i].ssid.c_str(), networks[i].password.c_str());
-    
+
     // Лічильник спроб підключення
     int attempts = 0;
-    
+
     // Цикл очікування підключення
     while (WiFi.status() != WL_CONNECTED && attempts < WIFI_MAX_ATTEMPTS) {
-      delay(500);
+      delay(WIFI_RETRY_DELAY_MS);
       Serial.print(F("."));
       attempts++;
     }
-    
+
     // Перевіряємо результат
     if (WiFi.status() == WL_CONNECTED) {
       Serial.println();
       Serial.println(F("[WiFi] WiFi connected!"));
       Serial.print(F("[WiFi] IP address: "));
       Serial.println(WiFi.localIP());
+      
+      // Перевіряємо рівень сигналу
+      int32_t rssi = WiFi.RSSI();
+      Serial.print(F("[WiFi] RSSI (signal strength): "));
+      Serial.print(rssi);
+      Serial.println(F(" dBm"));
+      
+      if (rssi < WIFI_MIN_RSSI_THRESHOLD) {
+        Serial.println(F("[WiFi] WARNING: Weak signal! Audio dropouts may occur."));
+        Serial.println(F("[WiFi] Consider moving closer to the router."));
+      } else if (rssi < -70) {
+        Serial.println(F("[WiFi] Signal quality: Moderate"));
+      } else {
+        Serial.println(F("[WiFi] Signal quality: Good"));
+      }
+      
       return true;
     }
-    
+
     Serial.println(F(" [не вдалося]"));
     WiFi.disconnect();  // Відключаємось для наступної спроби
   }
-  
+
   Serial.println(F("[WiFi] Всі спроби підключення не вдалися"));
   return false;
 }
@@ -211,6 +232,39 @@ void appWifiClearCredentials() {
  */
 bool appWifiIsConnected() {
   return WiFi.status() == WL_CONNECTED;
+}
+
+/**
+ * @brief Отримати рівень сигналу WiFi (RSSI)
+ * @return RSSI в dBm або 0 якщо не підключено
+ */
+int32_t appWifiGetRSSI() {
+  if (appWifiIsConnected()) {
+    return WiFi.RSSI();
+  }
+  return 0;
+}
+
+/**
+ * @brief Перевірити якість WiFi з'єднання
+ * @return true якщо якість достатня для потоку
+ */
+bool appWifiCheckConnectionQuality() {
+  if (!appWifiIsConnected()) {
+    return false;
+  }
+  
+  int32_t rssi = WiFi.RSSI();
+  
+  // Перевіряємо рівень сигналу
+  if (rssi < WIFI_MIN_RSSI_THRESHOLD) {
+    Serial.print(F("[WiFi] WARNING: Poor signal quality: "));
+    Serial.print(rssi);
+    Serial.println(F(" dBm"));
+    return false;
+  }
+  
+  return true;
 }
 
 /**
